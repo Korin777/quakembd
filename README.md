@@ -1,8 +1,8 @@
-# Quake for embedded devices
+# Quake for rv32emu-next(riscv ISA emulator)
 
-QuakEMBD is yet another WinQuake port for embedded devices, primarily for ARM Cortex-M devices.
+This repo is forked from [QuakEMBD](https://github.com/FantomJAC/quakembd) and modified to meet the [rv32emu-next](https://github.com/Korin777/rv32emu-next) which is an instruction set architecture (ISA) emulator implementing the 32 bit RISC-V processor model.
 
-![QuakEMBD on Action](https://i.imgur.com/wctRYIJ.gif)
+![image](https://user-images.githubusercontent.com/57750932/149654157-b41f8456-0870-41f4-a076-ecb0183e55e7.png)
 
 Based on original Quake GPL source: [https://github.com/id-Software/Quake](https://github.com/id-Software/Quake)
 
@@ -11,31 +11,24 @@ Based on original Quake GPL source: [https://github.com/id-Software/Quake](https
 * All sound functions are not yet supported.
 * Many other features may not be supported or left untested.
 
-## Will it run Quake?
-
-Currently the following devices are supported.
-
-* [STM32H747I-DISCO](https://www.st.com/ja/evaluation-tools/stm32h747i-disco.html)
-  * Locate `*.PAK` files under `<micro-sd-card>/quakembd/id1`
-  * You can use [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html) to program `quakembd.bin` file
-  * Touch screen & joystick are supported for the minimal playing experience
-
+## Requirement
+[riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain)(riscv64-unknown-elf(Newlib multilib))
+```
+sudo apt-get install autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
+git clone https://github.com/riscv/riscv-gnu-toolchain
+cd riscv-gnu-toolchain/
+sudo ./configure --prefix=/opt/riscv --enable-multilib
+sudo make
+export PATH=$PATH:/opt/riscv/bin
+```
+[rv32emu-next](https://github.com/Korin777/rv32emu-next)
 ## How to build
 
-Use CMake with [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) installed.
+Run build.sh shell script and it will build a 32bits riscv elf file quakembd under build/port/board/emulator/quake directory
 
-The defaut toolchain file assumes:
-* GNU Arm Embedded Toolchain is installed under `~/gcc-arm-none-eabi-9-2019-q4-major`
-* [STM32Cube package](https://github.com/STMicroelectronics/STM32CubeH7) is cloned under `~/STM32CubeH7`
+## How to Run 
 
-See `port/boards/stm32h747i_disco/gcc/toolchain.cmake` file for details.
+Use the rv32emu-next to execute above elf file
 
-```
-$ mkdir build && cd build
-$ cmake \
--DCMAKE_TOOLCHAIN_FILE=../port/boards/stm32h747i_disco/gcc/toolchain.cmake \
--DCMAKE_BUILD_TYPE=RELEASE \
--DBOARD_NAME=stm32h747i_disco \
--GNinja ..
-$ ninja
-```
+## Other Detail
+[Run Quake on rv32emu-next](https://hackmd.io/6RXHNXN9QTOyuGhSTqgUVA?view)
