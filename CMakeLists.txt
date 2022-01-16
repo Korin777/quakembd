@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(QuakEMBD C ASM)
+project(quakembd C ASM)
 
 add_compile_options(-fno-common)
 add_definitions(-DWINQUAKE_ENABLE_LOGGING -DWINQUAKE_LOGGING_EXTERNAL)

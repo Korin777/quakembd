@@ -16,13 +16,13 @@
  */
 
 #include <quakembd.h>
-#include <MiniFB.h>
 
 #define	DISPLAY_WIDTH 800
 #define	DISPLAY_HEIGHT 480
 
-static struct Window *window;
+// static struct mfb_window  *window;
 static uint32_t buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT];
+static const int syscall_num = 0xbeef; //sys_call_draw_frame
 
 int qembd_get_width()
 {
@@ -36,9 +36,16 @@ int qembd_get_height()
 
 void qembd_vidinit()
 {
-	window = mfb_open_ex("Quake", DISPLAY_WIDTH, DISPLAY_HEIGHT, WF_BORDERLESS);
-	if (!window)
-		qembd_error("Can't create Window");
+	// window = mfb_open_ex("Quake", DISPLAY_WIDTH, DISPLAY_HEIGHT, WF_RESIZABLE);
+	// if (!window)
+	// 	qembd_error("Can't create Window");
+	register int a0 asm("a0") = &buffer;
+	register int a1 asm("a1") = DISPLAY_WIDTH;
+	register int a2 asm("a2") = DISPLAY_HEIGHT;
+	register int a7 asm("a7") = syscall_num;
+
+	asm volatile ("scall"
+		: "r+"(a0) : "r"(a1), "r"(a2), "r"(a7));
 }
 
 void qembd_fillrect(uint8_t *src, uint32_t *clut, uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize)
@@ -57,6 +64,13 @@ void qembd_fillrect(uint8_t *src, uint32_t *clut, uint16_t x, uint16_t y, uint16
 
 void qembd_refresh()
 {
-	if (window)
-		mfb_update(window, buffer);
+	// if (window)
+	// 	mfb_update(window, buffer);
+	register int a0 asm("a0") = &buffer;
+	register int a1 asm("a1") = DISPLAY_WIDTH;
+	register int a2 asm("a2") = DISPLAY_HEIGHT;
+	register int a7 asm("a7") = syscall_num;
+
+	asm volatile ("scall"
+		: "r+"(a0) : "r"(a1), "r"(a2), "r"(a7));
 }

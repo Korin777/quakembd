@@ -16,29 +16,48 @@
  */
 
 #include <quakembd.h>
-#include <sys/time.h>
+// #include <sys/time.h>
 #include <unistd.h>
 #include <stdlib.h>
 
+const int syscall_get_tick = 0xcafe, sys_delay = 0xcaff;
+
+
 uint64_t qembd_get_us_time()
 {
-	struct timeval tp;
-	struct timezone tzp;
-	static int secbase;
+	// struct timeval tp;
+	// struct timezone tzp;
 
-	gettimeofday(&tp, &tzp);
+	// gettimeofday(&tp, &tzp);
+	// static int secbase = 0;
 
-	if (!secbase) {
-		secbase = tp.tv_sec;
-		return (uint64_t) tp.tv_usec;
-	}
+	// if (!secbase) {
+	// 	secbase = tp.tv_sec;
+	// 	return (uint64_t) tp.tv_usec;
+	// }
 
-	return ((tp.tv_sec - secbase) * 1000000) + tp.tv_usec;
+	// return ((tp.tv_sec - secbase) * 1000000) + tp.tv_usec;
+
+
+	register int a0 asm("a0");
+	register int a7 asm("a7") = syscall_get_tick;
+
+	asm volatile ("scall"
+		: "r+"(a0) : "r"(a7));
+
+	uint32_t time = a0;
+
+	return time;
+
 }
 
 void qembd_udelay(uint32_t us)
 {
-	usleep(us);
+	// usleep(us);
+	register int a0 asm("a0") = 1;
+	register int a7 asm("a7") = sys_delay;
+	asm volatile ("scall"
+		: "r+"(a0) : "r"(a7));
 }
 
 int main(int c, char **v)

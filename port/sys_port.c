@@ -59,6 +59,21 @@ void _Sys_Printf(const char *fmt, ...)
 }
 #endif
 
+void Sys_Error (char *error, ...)
+{ 
+    va_list     argptr;
+    char        string[1024];
+
+    va_start (argptr,error);
+    vsprintf (string,error,argptr);
+    va_end (argptr);
+	fprintf(stderr, "Error: %s\n", string);
+
+	Host_Shutdown ();
+	exit (1);
+
+} 
+
 // =======================================================================
 // General routines
 // =======================================================================
@@ -71,7 +86,7 @@ void Sys_Quit(void)
 
 double Sys_FloatTime(void)
 {
-	return qembd_get_us_time() / 1000000.0;
+	return qembd_get_us_time()/1000.0; //1000000.0;
 }
 
 char *Sys_ConsoleInput(void)
@@ -131,6 +146,7 @@ int qembd_main(int c, char **v)
 
 	Host_Init(&parms);
 
+
 //	if (COM_CheckParm("-nostdout")) {
 //		nostdout = 1;
 //	}
@@ -138,6 +154,8 @@ int qembd_main(int c, char **v)
 	qembd_info("QuakEMBD - Based on WinQuake %0.3f", VERSION);
 
 	oldtime = Sys_FloatTime() - 0.1;
+
+
 	while (1) {
 		// find time spent rendering last frame
 		newtime = Sys_FloatTime();
@@ -156,7 +174,6 @@ int qembd_main(int c, char **v)
 			oldtime = newtime;
 		else
 			oldtime += time;
-
 		Host_Frame(time);
 
 #if 0

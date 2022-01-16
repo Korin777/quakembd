@@ -19,84 +19,143 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
 
-int Sys_FileOpenRead(char *path, int *handle)
-{
-	int	h;
-	struct stat	fileinfo;
+#define	MAX_HANDLES		10
+FILE	*sys_handles[MAX_HANDLES];
 
-	h = open(path, O_RDONLY, 0666);
-	*handle = h;
-	if (h == -1)
+int		findhandle (void)
+{
+	int		i;
+	
+	for (i=1 ; i<MAX_HANDLES ; i++)
+		if (!sys_handles[i])
+			return i;
+	Sys_Error ("out of handles");
+	return -1;
+}
+
+static int Qfilelength (FILE *f)
+{
+	int		pos;
+	int		end;
+
+	pos = ftell (f);
+	fseek (f, 0, SEEK_END);
+	end = ftell (f);
+	fseek (f, pos, SEEK_SET);
+
+	return end;
+}
+
+
+int Sys_FileOpenRead (char *path, int *hndl)
+{
+	FILE	*f;
+	int		i;
+	
+	i = findhandle ();
+
+	f = fopen(path, "rb");
+	if (!f)
+	{
+		*hndl = -1;
 		return -1;
-
-	if (fstat(h, &fileinfo) == -1)
-		qembd_error("Error fstating %s", path);
-
-	return fileinfo.st_size;
+	}
+	sys_handles[i] = f;
+	*hndl = i;
+	
+	return Qfilelength(f);
 }
 
-int Sys_FileOpenWrite(char *path)
+int Sys_FileOpenWrite (char *path)
 {
-	int handle;
+	FILE	*f;
+	int		i;
+	
+	i = findhandle ();
 
-	umask(0);
-
-	handle = open(path, O_RDWR | O_CREAT | O_TRUNC, 0666);
-
-	if (handle == -1)
-		qembd_error("Error opening %s: %s", path, strerror(errno));
-
-	return handle;
+	f = fopen(path, "wb");
+	if (!f)
+		Sys_Error ("Error opening %s: %s", path,strerror(errno));
+	sys_handles[i] = f;
+	
+	return i;
 }
 
-void Sys_FileClose(int handle)
+void Sys_FileClose (int handle)
 {
-	close(handle);
+	if ( handle >= 0 ) {
+		fclose (sys_handles[handle]);
+		sys_handles[handle] = NULL;
+	}
 }
 
-void Sys_FileSeek(int handle, int position)
+void Sys_FileSeek (int handle, int position)
 {
-	lseek(handle, position, SEEK_SET);
+	if ( handle >= 0 ) {
+		fseek (sys_handles[handle], position, SEEK_SET);
+	}
 }
 
-int Sys_FileRead(int handle, void *dest, int count)
+int Sys_FileRead (int handle, void *dst, int count)
 {
-	return read(handle, dest, count);
+	char *data;
+	int size, done;
+
+	size = 0;
+	if ( handle >= 0 ) {
+		data = dst;
+		while ( count > 0 ) {
+			done = fread (data, 1, count, sys_handles[handle]);
+			if ( done == 0 ) {
+				break;
+			}
+			data += done;
+			count -= done;
+			size += done;
+		}
+	}
+	return size;
+		
 }
 
-int Sys_FileWrite(int handle, void *src, int count)
+int Sys_FileWrite (int handle, void *src, int count)
 {
-	return write(handle, src, count);
-}
+	char *data;
+	int size, done;
 
+	size = 0;
+	if ( handle >= 0 ) {
+		data = src;
+		while ( count > 0 ) {
+			done = fread (data, 1, count, sys_handles[handle]);
+			if ( done == 0 ) {
+				break;
+			}
+			data += done;
+			count -= done;
+			size += done;
+		}
+	}
+	return size;
+}
 int	Sys_FileTime(char *path)
 {
-	struct stat buf;
-
-	if (stat(path, &buf) == -1)
-		return -1;
-
-	return buf.st_mtime;
+	FILE    *f;
+	
+	f = fopen(path, "rb");
+	if (f)
+	{
+		fclose(f);
+		return 1;
+	}
+	
+	return -1;
 }
 
 void Sys_mkdir(char *path)
 {
-	mkdir(path, 0777);
 }
 
-void Sys_FileSync(int handle)
-{
-	fsync(handle);
-}
-
-void Sys_File_gets(int handle, char *buf, int len)
-{
-	FILE *fp = fdopen(handle, "r");
-	fgets(buf, len, fp);
-	fclose(fp);
-}

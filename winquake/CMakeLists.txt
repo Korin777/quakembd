@@ -62,12 +62,8 @@ set(WQ_SRCS
 	sv_user.c
 )
 
-if(CMAKE_SYSTEM_NAME MATCHES "(Darwin|Linux)")
-	list(APPEND WQ_SRCS
-		net_dgrm.c
-		net_udp.c
-		net_bsd.c
-	)
+list(APPEND WQ_SRCS net_none.c)
+
 #	set(WQ_ASM_SRCS
 #		x86/d_draw.s
 #		x86/d_draw16.s
@@ -86,12 +82,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "(Darwin|Linux)")
 #		x86/worlda.s
 #		x86/r_aclipa.s
 #	)
-#	set_source_files_properties(${WQ_ASM_SRCS} PROPERTIES COMPILE_FLAGS "${CFLAGS} -DELF -x assembler-with-cpp")
-else()
-	list(APPEND WQ_SRCS
-		net_none.c
-	)
-endif()
 
 add_library(winquake OBJECT ${WQ_SRCS} ${WQ_ASM_SRCS})
 

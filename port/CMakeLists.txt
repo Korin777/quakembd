@@ -11,4 +11,4 @@ target_include_directories(port PUBLIC
 	${PROJECT_SOURCE_DIR}/winquake
 )
 
-add_subdirectory(boards/${BOARD_NAME})
+add_subdirectory(boards/emulator)
