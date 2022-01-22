@@ -17,6 +17,7 @@
 
 #include <quakembd.h>
 // #include <sys/time.h>
+#include<time.h>
 #include <unistd.h>
 #include <stdlib.h>
 
@@ -37,27 +38,25 @@ uint64_t qembd_get_us_time()
 	// }
 
 	// return ((tp.tv_sec - secbase) * 1000000) + tp.tv_usec;
+	
+	uint64_t cur_time = (uint64_t)clock();
+	static int secbase;
 
+	if (!secbase) {
+		secbase = cur_time / 1000000;
+		return (uint64_t) secbase;
+	}
 
-	register int a0 asm("a0");
-	register int a7 asm("a7") = syscall_get_tick;
-
-	asm volatile ("scall"
-		: "r+"(a0) : "r"(a7));
-
-	uint32_t time = a0;
-
-	return time;
-
+	return cur_time;
 }
 
 void qembd_udelay(uint32_t us)
 {
 	// usleep(us);
-	register int a0 asm("a0") = 1;
-	register int a7 asm("a7") = sys_delay;
-	asm volatile ("scall"
-		: "r+"(a0) : "r"(a7));
+	uint64_t start = qembd_get_us_time(), end;
+	end = start;
+	while(end - start < 1)
+		end = qembd_get_us_time();
 }
 
 int main(int c, char **v)
