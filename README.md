@@ -1,6 +1,6 @@
 # Quake for rv32emu-next(riscv ISA emulator)
 
-This repo is forked from [QuakEMBD](https://github.com/FantomJAC/quakembd) and modified to meet the [rv32emu-next](https://github.com/Korin777/rv32emu-next) which is an instruction set architecture (ISA) emulator implementing the 32 bit RISC-V processor model.
+This repo is forked from [QuakEMBD](https://github.com/FantomJAC/quakembd) and modified to meet the [rv32emu-next](https://github.com/sysprog21/rv32emu-next) which is an instruction set architecture (ISA) emulator implementing the 32 bit RISC-V processor model.
 
 ![image](https://user-images.githubusercontent.com/57750932/149654157-b41f8456-0870-41f4-a076-ecb0183e55e7.png)
 
@@ -21,7 +21,7 @@ sudo ./configure --prefix=/opt/riscv --enable-multilib
 sudo make
 export PATH=$PATH:/opt/riscv/bin
 ```
-[rv32emu-next](https://github.com/Korin777/rv32emu-next)
+[rv32emu-next](https://github.com/sysprog21/rv32emu-next)
 ## How to build
 
 Run build.sh shell script and it will build a 32bits riscv elf file quakembd under build/port/board/emulator/quake directory
