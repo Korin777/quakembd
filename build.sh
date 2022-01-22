@@ -1,7 +1,7 @@
 #!/bin/bash
 rm -r build
 mkdir build && cd build
-cmake -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DCMAKE_BUILD_TYPE=RELEASE  -GNinja ..
+cmake -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake  -GNinja ..
 ninja
 cd port/boards/emulator
 mkdir quake
