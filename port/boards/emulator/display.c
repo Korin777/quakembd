@@ -17,8 +17,8 @@
 
 #include <quakembd.h>
 
-#define	DISPLAY_WIDTH 800
-#define	DISPLAY_HEIGHT 480
+#define	DISPLAY_WIDTH 400
+#define	DISPLAY_HEIGHT 240
 
 // static struct mfb_window  *window;
 static uint32_t buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT];
